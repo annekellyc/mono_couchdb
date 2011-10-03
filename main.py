@@ -23,6 +23,7 @@ import delete_documents
 import connection
 import generator
 import sys
+from datetime import datetime
 
 if len(sys.argv) <= 1 or len(sys.argv) != 2:
     print "--> Invalid input. Please type 'insert', 'retrieve', 'update' or 'delete' to run the program."
@@ -30,23 +31,28 @@ elif str(sys.argv[1]) != "insert"  and str(sys.argv[1]) != "retrieve" and str(sy
     print "--> Invalid input. Please type 'insert', 'retrieve', 'update' or 'delete' to run the program."
 else:
     server = connection.create()
-    
     db = ""
-          
+        
     print "\n--> Preparing test scenario. It may take a few minutes."
     scenario_01 = generator.generate_post(10)
     scenario_02 = generator.generate_post(100)
-    #scenario_03 = generator.generate_post(1000)
-    #scenario_04 = generator.generate_post(10000)
-    #scenario_05 = generator.generate_post(100000)
-    #scenario_06 = generator.generate_post(1000000)    
-    scenario_list = [scenario_01, scenario_02]
+    scenario_03 = generator.generate_post(1000)
+    scenario_04 = generator.generate_post(10000)
+    scenario_05 = generator.generate_post(100000)    
+    
+    ids_scenario_01 = []
+    ids_scenario_02 = []
+    ids_scenario_03 = []
+    ids_scenario_04 = []
+    ids_scenario_05 = []
+        
+    scenario_list = [scenario_01, scenario_02, scenario_03, scenario_04, scenario_05]
+    ids_scenario_list = [ids_scenario_01, ids_scenario_02, ids_scenario_03, ids_scenario_04, ids_scenario_05]
 
     def execute_function(function, db):
         print "\n::: START RUNNING THE COUCHDB TESTS WITH " + str(len(scenario_list)) + " SCENARIOS :::\n"               
        
         number_of_doc = 100 
-        key_input = "Y"
         number_scenario = 1                 
         for scenario in scenario_list:   
             try:
@@ -54,39 +60,32 @@ else:
             except:
                server.delete('posts')
                db = server.create('posts')
-            if (key_input == "Y" or key_input == "y"):
-                print "\nSCENARIO " + str(number_scenario)           
-                if function != insert_documents.insert:
-                    insert_documents.insert(db, scenario)                                     
-                function(db, scenario)                                                                       
-                if scenario == scenario_list[-1]:                    
-                    break
-                message = "--> Do you want to run the next scenario with " + str(number_of_doc) + " documents ([Y] / N)?: "
-                key_input = raw_input(message)
-                number_of_doc = number_of_doc * 10 
-                number_scenario += 1   
-            elif (key_input == "N" or key_input == "n"):
-                print "\n--> Test finished.\n"
-                break
+            
+            print "\nSCENARIO " + str(number_scenario) + " " + str(datetime.now())
+            if function == insert_documents.insert:
+                function(db, scenario)
             else:
-                print "\n--> Invalid command.\n"               
-                break
-    
+                ids_scenario_list[number_scenario - 1] = insert_documents.bulk_insert(db, scenario)                                     
+                function(db, ids_scenario_list[number_scenario - 1])
+
+            number_of_doc = number_of_doc * 10 
+            number_scenario += 1   
+   
     def execute_program():
-        #try:            
-        param = str(sys.argv[1])       
-        if param == "insert":            
-            execute_function(insert_documents.insert, db)
-        if param == "retrieve":            
-            execute_function(retrieve_documents.retrieve, db)
-        if param == "update":
-            execute_function(update_documents.update, db)
-        if param == "delete":
-            execute_function(delete_documents.remove, db)
-        #except Exception:
-            #print "--> Error executing the program."
+        try:            
+            param = str(sys.argv[1])       
+            if param == "insert":            
+                execute_function(insert_documents.insert, db)
+            if param == "retrieve":            
+                execute_function(retrieve_documents.retrieve, db)
+            if param == "update":
+                execute_function(update_documents.update, db)
+            if param == "delete":
+                execute_function(delete_documents.remove, db)
+        except Exception:
+            print "--> Error executing the program."
 
     execute_program()
-
+    print "\nEnd: " + str(datetime.now())
 
 

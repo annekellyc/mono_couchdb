@@ -17,7 +17,6 @@
 #!/bin/env/ python 
 
 import couchdb
-from pymongo import Connection
 
 # Creates a connection to CouchDB.
 def create():

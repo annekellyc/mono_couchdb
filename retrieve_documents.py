@@ -24,9 +24,10 @@ def retrieve(db, documents):
     try:
         start_c = time.clock()
         start_t = time.time()
+
         for document in documents:
-            doc_id = 'post_' + str(document['author'])
-            db[doc_id]
+            db[document]
+        
         elapsed_c = (time.clock() - start_c)
         elapsed_t = (time.time() - start_t)   
         message = "--> " + str(len(documents)) + " retrieved document(s).\n " + "Time: " + str(elapsed_c) + " seconds process time and " + str(elapsed_t) + " seconds real time.\n"           

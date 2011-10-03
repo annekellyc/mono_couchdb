@@ -23,6 +23,18 @@ import generator
 import datetime
 import time
 
+def bulk_insert(db, documents):
+    try:       
+        doc_ids = []
+        
+        for doc in db.update(documents):
+            if doc[0]:
+                doc_ids.append(doc[1])
+
+        return doc_ids
+    except Exception:
+        print "--> Error inserting document(s)."
+
 # Function to insert new documents 
 def insert(db, documents):
     try:
@@ -35,7 +47,8 @@ def insert(db, documents):
         elapsed_t = (time.time() - start_t)   
         message = "--> " + str(len(documents)) + " inserted document(s).\n " + "Time: " + str(elapsed_c) + " seconds process time and " + str(elapsed_t) + " seconds real time.\n"           
         print message
-    except Exception:
+    except Exception, e:
+        print e
         print "--> Error inserting document(s)."
         
 
